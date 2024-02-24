@@ -9,7 +9,7 @@ This extension allows you to connect VSCode to an Umbraco instance and modify do
     - Click the ellipsis icon.
     - Click **Install from VSIX...**.
     - Find and select the VSIX file and click **Install**.
-    ![Install](images/install.png)
+ ![Install](images/install.png)
  2. Open the command palette.
     - Press `Shift`+`Command`+`P` (Mac) / `Ctrl`+`Shift`+`P` (Windows/Linux); or
     - Press `F1`; or
