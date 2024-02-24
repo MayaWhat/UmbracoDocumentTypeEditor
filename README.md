@@ -1,10 +1,15 @@
 # Umbraco Document Type Editor
 
 This extension allows you to connect VSCode to an Umbraco instance and modify document types as if they were javascript code files.
-![Feature X](images/sample.png)
+![Sample](images/sample.png)
 
 ## Getting started
- 1. Install the extension.
+ 1. Install the extension manually (I'll publish it properly once it's a bit more stable :D)
+    - Go to extensions.
+    - Click the ellipsis icon.
+    - Click **Install from VSIX...**.
+    - Find and select the VSIX file and click **Install**.
+    ![Install](images/install.png)
  2. Open the command palette.
     - Press `Shift`+`Command`+`P` (Mac) / `Ctrl`+`Shift`+`P` (Windows/Linux); or
     - Press `F1`; or
