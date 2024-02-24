@@ -1,6 +1,7 @@
 {
   "name": "umbracodocumenttypeeditor",
   "displayName": "Umbraco Document Type Editor",
+  "repository": "https://github.com/MayaWhat/UmbracoDocumentTypeEditor",
   "description": "",
   "version": "0.0.1",
   "engines": {
