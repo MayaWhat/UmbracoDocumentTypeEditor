@@ -5,13 +5,15 @@ import * as parserModels from './models/parser';
 type Scope = { [key: string]: any };
 
 export class ParserError extends Error {
-    constructor(error: string, public range?: [number, number] ) {
-        super(error);
+    constructor(error: string, public loc?: estree.SourceLocation | null) {
+        super(error + (loc ? `; line: ${loc.start.line}, column: ${loc.start.column}` : ''));
     }
 }
 
 export function parseContentTypeCode(code: string) {
-    const module = esprima.parseModule(code);
+    const module = esprima.parseModule(code, {
+        loc: true
+    });
 
     const scope: Scope = {};
     scope['DocumentType'] = parserModels.DocumentType;
@@ -38,7 +40,7 @@ function parseStatement(statement: estree.Directive | estree.Statement | estree.
         case 'ExportDefaultDeclaration':
             return parseExportDefaultDeclaration(statement, scope);
         default:
-            throw new ParserError(`Unsupported statement ${statement.type}`, statement.range);
+            throw new ParserError(`Unsupported statement ${statement.type}`, statement.loc);
     }
 }
 
@@ -48,7 +50,7 @@ function parseExportDefaultDeclaration(declaration: estree.ExportDefaultDeclarat
     }
 
     if (declaration.declaration.type != 'NewExpression') {
-        throw new ParserError(`Unsupported declaration ${declaration.declaration.type}`, declaration.declaration.range);
+        throw new ParserError(`Unsupported declaration ${declaration.declaration.type}`, declaration.declaration.loc);
     }
 
     return parseNewExpression(declaration.declaration, scope);
@@ -65,27 +67,27 @@ function parseExpression(expression: estree.Expression | estree.Pattern, scope: 
         case 'ArrayExpression':
             return parseArrayExpression(expression, scope);
         default:
-            throw new ParserError(`Unsupported expression ${expression.type}`, expression.range);
+            throw new ParserError(`Unsupported expression ${expression.type}`, expression.loc);
     }
 }
 
 function parseNewExpression(expression: estree.NewExpression, scope: Scope) {
     if (expression.callee.type !== 'Identifier') {
-        throw new ParserError(`Unsupported callee ${expression.callee.type}`, expression.callee.range);
+        throw new ParserError(`Unsupported callee ${expression.callee.type}`, expression.callee.loc);
     }
 
     const callee = scope[expression.callee.name];
     if (!callee) {
-        throw new ParserError(`Unknown identifier ${expression.callee.name}`, expression.callee.range);
+        throw new ParserError(`Unknown identifier ${expression.callee.name}`, expression.callee.loc);
     }
 
     if (typeof callee !== 'function') {
-        throw new ParserError(`${expression.callee.name} is not a class`, expression.callee.range);
+        throw new ParserError(`${expression.callee.name} is not a class`, expression.callee.loc);
     }
     
     const args: any[] = expression.arguments.map(x => {
         if (x.type === 'SpreadElement') {
-            throw new ParserError(`Spread operator is not supported`, x.range);
+            throw new ParserError(`Spread operator is not supported`, x.loc);
         }
 
         return parseExpression(x, scope);
@@ -97,11 +99,11 @@ function parseNewExpression(expression: estree.NewExpression, scope: Scope) {
 function parseObjectExpression(expression: estree.ObjectExpression, scope: Scope) {
     return expression.properties.map(x => {
         if (x.type !== 'Property') {
-            throw new ParserError(`Unsupported type ${x.type}`, x.range);
+            throw new ParserError(`Unsupported type ${x.type}`, x.loc);
         }
 
         if (x.key.type !== 'Identifier') {
-            throw new ParserError(`Unsupported key ${x.key.type}`, x.key.range);
+            throw new ParserError(`Unsupported key ${x.key.type}`, x.key.loc);
         }
 
         return {
@@ -121,7 +123,7 @@ function parseArrayExpression(expression: estree.ArrayExpression, scope: Scope) 
         }
 
         if (x.type === 'SpreadElement') {
-            throw new ParserError(`Spread operator is not supported`, x.range);
+            throw new ParserError(`Spread operator is not supported`, x.loc);
         }
 
         return parseExpression(x, scope);
