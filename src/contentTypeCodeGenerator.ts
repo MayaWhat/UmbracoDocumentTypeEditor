@@ -45,7 +45,7 @@ export function generateCode<T>(model: T): any {
       const modelClass = model as any as parserModels.Base<any>;
 
       return newExpression(
-        model.constructor.name,
+        (modelClass.constructor as any).className,
         generateCode(modelClass.props)
       );
     case 'string':

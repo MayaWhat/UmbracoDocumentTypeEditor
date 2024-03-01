@@ -27,21 +27,27 @@ export class DocumentType extends Base<{
     isElement?: boolean,
     tabs?: Tab[],
     groups?: Group[]
-}> {}
+}> {
+    public static className = 'DocumentType';
+}
 
 export class Tab extends Base<{
     alias?: string,
     name: string,
     sortOrder?: number,
     groups: Group[],
-}> {}
+}> {
+    public static className = 'Tab';
+}
 
 export class Group extends Base<{
     alias?: string,
     name: string,
     sortOrder?: number,
     properties: Property[],
-}> {}
+}> {
+    public static className = 'Group';
+}
 
 export class Property extends Base<{
     alias?: string,
@@ -58,4 +64,6 @@ export class Property extends Base<{
         pattern?: string,
         patternMessage?: string
     }
-}> {}
+}> {
+    public static className = 'Property';
+}
