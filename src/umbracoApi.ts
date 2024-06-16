@@ -6,57 +6,99 @@ export class UmbracoApi {
     private _umbracoPassword: string | undefined;
     private _umbracoCookie: string | undefined;
     private _umbracoXsrfToken: string | undefined;
+    private _mode: 'Username / Password' | 'Cookie' | undefined;
     private _currentLoginRequest?: Promise<boolean>
 
     constructor(private readonly _umbracoUrl: string) {
     }
 
     private async loginInternal(failed?: boolean): Promise<boolean> {
-        if (failed || !this._umbracoUsername || !this._umbracoPassword) {
-            const umbracoUsername = await vscode.window.showInputBox({
-                prompt: 'Enter Umbraco username',
-                ignoreFocusOut: true,
-                value: this._umbracoUsername
-            });
-
-            if (!umbracoUsername) {
-                return false;
-            }
-
-            this._umbracoUsername = umbracoUsername;
-        }
-
-        if (failed || !this._umbracoPassword) {
-            const umbracoPassword = await vscode.window.showInputBox({
-                prompt: 'Enter Umbraco password',
-                password: true,
+        if (failed || !this._mode) {
+            const mode = await vscode.window.showQuickPick([
+                'Username / Password',
+                'Cookie'
+            ], {
+                canPickMany: false,
                 ignoreFocusOut: true
             });
 
-            if (!umbracoPassword) {
+            if (!mode) {
                 return false;
             }
 
-            this._umbracoPassword = umbracoPassword;
+            this._mode = mode as 'Username / Password' | 'Cookie';
         }
 
-        const response = await fetch(`${this._umbracoUrl}/umbraco/backoffice/umbracoapi/authentication/PostLogin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: this._umbracoUsername,
-                password: this._umbracoPassword
-            })
-        });
+        let response: Response;
+        if (this._mode === 'Username / Password') {
+            if (failed || !this._umbracoUsername || !this._umbracoPassword) {
+                const umbracoUsername = await vscode.window.showInputBox({
+                    prompt: 'Enter Umbraco username',
+                    ignoreFocusOut: true,
+                    value: this._umbracoUsername
+                });
 
-        if (!response.ok) {
-            this._umbracoPassword = undefined;
-            vscode.window.showErrorMessage("Umbraco login failed");
-            return await this.loginInternal(true);
+                if (!umbracoUsername) {
+                    return false;
+                }
+
+                this._umbracoUsername = umbracoUsername;
+            }
+
+            if (failed || !this._umbracoPassword) {
+                const umbracoPassword = await vscode.window.showInputBox({
+                    prompt: 'Enter Umbraco password',
+                    password: true,
+                    ignoreFocusOut: true
+                });
+
+                if (!umbracoPassword) {
+                    return false;
+                }
+
+                this._umbracoPassword = umbracoPassword;
+            }
+
+            response = await fetch(`${this._umbracoUrl}/umbraco/backoffice/umbracoapi/authentication/PostLogin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: this._umbracoUsername,
+                    password: this._umbracoPassword
+                })
+            });
+
+            if (!response.ok) {
+                this._umbracoPassword = undefined;
+                vscode.window.showErrorMessage("Umbraco login failed");
+                return await this.loginInternal(true);
+            }
         }
+        else {
+            const umbracoCookie = await vscode.window.showInputBox({
+                prompt: 'Enter Umbraco UMB_UCONTEXT set cookie header',
+                ignoreFocusOut: true
+            });
 
+            if (!umbracoCookie) {
+                return false;
+            }
+            
+            response = await fetch(`${this._umbracoUrl}/umbraco/backoffice/umbracoapi/authentication/GetCurrentUser`, {
+                redirect: 'manual',
+                headers: {
+                    'Cookie': umbracoCookie
+                }
+            });
+
+            if (!response.ok) {
+                vscode.window.showErrorMessage("Umbraco login failed");
+                return await this.loginInternal(true);
+            }
+        }
+        
         this._umbracoCookie = response.headers.getSetCookie().join('; ');
         const token = response.headers.getSetCookie().find(x => x.startsWith('UMB-XSRF-TOKEN='));
         this._umbracoXsrfToken = token?.substring(15).split('; ')[0];
