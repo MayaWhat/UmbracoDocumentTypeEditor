@@ -16,7 +16,9 @@ This extension allows you to connect VSCode to an Umbraco instance and modify do
     - From the Application Menu, click **View > Command Palette.**
  3. Find and run the command `Open Umbraco Workspace`
  4. Enter the URL for the Umbraco site when prompted. (This should be something like `https://localhost:44340` - **you shouldn't really be pointing this at anything other than your local development instance!**)
- 5. Enter your Umbraco username and password when prompted (Currently only the built in Umbraco authentication method is supported.)
+ 5. Select `Username / Password` or `Cookie`
+    - For `Username / Password`, enter your Umbraco username and password for built in Umbraco authentication
+    - For `Cookie`, sign in to the Umbraco backoffice in your browser using whatever authentication method you need. Then use your browser's dev tools to find the Set-Cookie header with the `UMB-UCONTEXT`cookie and copy **the entire header value** into the prompt ![Cookie header](images/cookie-auth.png)
  6. You should now see a view like the screenshot above with all document types for the Umbraco site listed.
 
 ## Why though?
