@@ -65,9 +65,9 @@ export class UmbracoFS implements vscode.FileSystemProvider {
             filterPropertyTypes: contentType.groups.flatMap(x => x.properties).map(x => x.alias),
             isElement: contentType.isElement
         });
+        const availableIcons = await result.umbracoApi.getIcons();
 
         const js = generateContentTypeCodeFile(contentType, allContentTypes) + "\n\n\n" + typeHelper + `
-/**
  * @typedef {(
  * ${dataTypes.map(x => `'${x.name}'`).join(' |\n * ')}
  * )} DataTypes
@@ -81,6 +81,11 @@ export class UmbracoFS implements vscode.FileSystemProvider {
  * @typedef {(
  * ${allContentTypes.filter(x => x.alias !== contentType.alias && !x.isElement).map(x => `'${x.alias}'`).join(' |\n * ')}
  * )} AvailableChildTypes
+ 
+
+ * @typedef {(
+ * ${Object.keys(availableIcons).map(x => `'${x}'`).join(' |\n * ')}
+ * )} AvailableIcons
  */`;
         return Buffer.from(js);
     }
@@ -301,7 +306,10 @@ class DocumentType {
      *    keepAllVersionsNewerThanDays?: number,
      *    keepLatestVersionPerDayForDays?: number,
      *  },
-     *  icon?: string,
+     *  icon?: {
+     *    name: AvailableIcons,
+     *    color:  \`color-\${AvailableColors}\`
+     *  } | AvailableIcons,
      *  isElement?: boolean,
      *  tabs?: Tab[],
      *  groups?: Group[]
@@ -354,4 +362,28 @@ class Property {
      */
     constructor(properties) {}
 }
+
+/**
+ * @typedef {(
+ * 'black' |
+ * 'blue-grey' |
+ * 'grey' |
+ * 'brown' |
+ * 'blue' |
+ * 'light-blue' |
+ * 'indigo' |
+ * 'purple' |
+ * 'deep-purple' |
+ * 'cyan' |
+ * 'green' |
+ * 'light-green' |
+ * 'lime' |
+ * 'yellow' |
+ * 'amber' |
+ * 'orange' |
+ * 'deep-orange' |
+ * 'red' |
+ * 'pink'
+ * )} AvailableColors
+
 `

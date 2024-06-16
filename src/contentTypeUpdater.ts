@@ -123,7 +123,21 @@ export async function updateContentType(api: UmbracoApi, id: string, contentType
             keepAllVersionsNewerThanDays: contentType.props.historyCleanup?.keepAllVersionsNewerThanDays,
             keepLatestVersionPerDayForDays: contentType.props.historyCleanup?.keepLatestVersionPerDayForDays
         },
-        icon: contentType.props.icon,
+        icon: (() => {
+            if (!contentType.props.icon) {
+                return undefined;
+            }
+
+            if (typeof contentType.props.icon === 'string') {
+                return contentType.props.icon;
+            }
+
+            if (!contentType.props.icon.color) {
+                return contentType.props.icon?.name;
+            }
+
+            return `${contentType.props.icon.name} ${contentType.props.icon.color}`
+        })(),
         id: existingContentType.id,
         isContainer: contentType.props.enableListView ?? false,
         isElement: contentType.props.isElement ?? false,

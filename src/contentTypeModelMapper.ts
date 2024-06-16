@@ -13,6 +13,8 @@ export function mapUmbracoDocumentTypeToParser(model: umbracoModels.DocumentType
         .filter(x => x.type == 'Group' && !x.alias.includes('/'))
         .sort((a, b) => a.sortOrder - b.sortOrder);
 
+    const icon = model.icon?.split(' ');
+
     return new parserModels.DocumentType({
         alias: model.alias,
         name: model.name ?? '',
@@ -30,7 +32,12 @@ export function mapUmbracoDocumentTypeToParser(model: umbracoModels.DocumentType
             keepAllVersionsNewerThanDays: undefinedIfNotNullOrUndefined(model.historyCleanup.keepAllVersionsNewerThanDays),
             keepLatestVersionPerDayForDays: undefinedIfNotNullOrUndefined(model.historyCleanup.keepLatestVersionPerDayForDays)
         } : undefined,
-        icon: model.icon,
+        icon: icon ? (
+            icon[1] ? {
+                name: icon[0],
+                color: icon[1]
+            } : icon[0]
+        ) : undefined,
         isElement: undefinedIfNotTruthy(model.isElement),
         groups: undefinedIfEmpty(groups, x => mapUmbracoPropertyGroupToParserGroup(x)),
         tabs: undefinedIfEmpty(tabs, x => mapUmbracoPropertyGroupToParserTab(x, cleanedGroups))

@@ -136,6 +136,10 @@ export class UmbracoApi {
         return JSON.parse(await this.doFetch(`umbraco/backoffice/umbracoapi/contenttype/GetAll`));
     }
 
+    public async getIcons(): Promise<{[key: string]: string}> {
+        return JSON.parse(await this.doFetch('umbraco/backoffice/umbracoapi/icon/GetIcons'));
+    }
+
     public async getGroupedDataTypes(): Promise<{ [key: string]: umbracoModels.DataTypeBasic[] }> {
         return JSON.parse(await this.doFetch('umbraco/backoffice/umbracoapi/datatype/GetGroupedDataTypes'));
     }

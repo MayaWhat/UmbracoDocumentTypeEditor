@@ -23,7 +23,10 @@ export class DocumentType extends Base<{
         keepAllVersionsNewerThanDays?: number,
         keepLatestVersionPerDayForDays?: number,
     },
-    icon?: string,
+    icon?: {
+        name: string,
+        color?: string
+    } | string,
     isElement?: boolean,
     tabs?: Tab[],
     groups?: Group[]
