@@ -4,7 +4,7 @@
   "repository": "https://github.com/MayaWhat/UmbracoDocumentTypeEditor",
   "publisher": "MayaWhat",
   "description": "",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4-alpha",
   "engines": {
     "vscode": "^1.86.0"
   },
